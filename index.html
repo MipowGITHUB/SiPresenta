@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1A3A63 0%, #0C233B 100%);
+            background-color: #f5f5f5;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            width: 420px;
+            max-width: 90%;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background-color: #0C233B;
+            color: white;
+            padding: 28px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(26, 58, 99, 0.3) 0%, rgba(12, 35, 59, 0) 100%);
+        }
+
+        .header-logo {
+            display: block; 
+            margin: 0 auto 15px auto; 
+            max-width: 250px; 
+            height: auto; 
+            position: relative; 
+            z-index: 1;
+        }
+
+        .header h2 {
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-container {
+            padding: 35px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #444;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+        }
+
+        .form-control:focus {
+            border-color: #062042;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 58, 99, 0.1);
+            background-color: #fff;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, #0b2649 0%, #0C233B 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(12, 35, 59, 0.2);
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #336699 0%, #1A3A63 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(12, 35, 59, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(12, 35, 59, 0.3);
+        }
+
+        .error-message {
+            color: #ff3333;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+            padding: 8px;
+            background-color: rgba(255, 51, 51, 0.05);
+            border-radius: 5px;
+            border-left: 3px solid #ff3333;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 14px;
+            color: #777;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="header">
+            <img src="images/logo.png" alt="Logo Lab" class="header-logo"> 
+            <h2>Sistem Presensi Lab Informatika UMM</h2>
+        </div>
+        <div class="form-container">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-login">LOGIN</button>
+                <div id="errorMessage" class="error-message">
+                    Username or password is incorrect
+                </div>
+            </form>
+            <div class="footer">
+                &copy; 2025 T3AM RFID
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (username === 'admin123' && password === 'password123') {
+                // Credentials are correct, redirect to dashboard
+                window.location.href = 'dashboard.php';
+            } else {
+                // Show error message
+                errorMessage.style.display = 'block';
+                
+                // Clear the password field
+                document.getElementById('password').value = '';
+                
+                // Hide error message after 3 seconds
+                setTimeout(function() {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
