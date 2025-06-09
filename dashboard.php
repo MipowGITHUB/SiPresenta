@@ -191,6 +191,7 @@ if (isset($_GET['auto_attendance'])) {
             color: #f5f5f5;
         }
         
+        /* RFID Section Styling */
         .rfid-section {
             background-color: rgba(76, 175, 80, 0.1);
             border: 2px solid #4CAF50;
@@ -199,12 +200,24 @@ if (isset($_GET['auto_attendance'])) {
             margin: 20px 0;
             text-align: center;
         }
-        .rfid-status {
+        
+        /* Fingerprint Section Styling - Konsisten dengan RFID */
+        .fingerprint-section {
+            background-color: rgba(33, 150, 243, 0.1);
+            border: 2px solid #2196F3;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .rfid-status, .fingerprint-status {
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 10px;
         }
-        .rfid-result {
+        
+        .rfid-result, .fingerprint-result {
             background-color: rgba(0, 0, 0, 0.2);
             padding: 15px;
             border-radius: 8px;
@@ -212,6 +225,7 @@ if (isset($_GET['auto_attendance'])) {
             min-height: 60px;
             text-align: left;
         }
+        
         .scanning {
             color: #FFC107;
         }
@@ -220,6 +234,21 @@ if (isset($_GET['auto_attendance'])) {
         }
         .error {
             color: #F44336;
+        }
+        
+        /* Section Headers */
+        .rfid-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #4CAF50;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fingerprint-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2196F3;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         @media (min-width: 768px) {
@@ -239,9 +268,9 @@ if (isset($_GET['auto_attendance'])) {
         <div id="clock"></div>
 
         <div class="btn-container">
-            <a href="lihat_data_asisten.php" class="btn"> Data Asisten</a>
-            <a href="lihat_data_kelas.php" class="btn"> Data Kelas</a>
-            <a href="lihat_data_praktikan.php" class="btn"> Data Praktikan</a>
+            <a href="lihat_data_asisten.php" class="btn">Data Asisten</a>
+            <a href="lihat_data_kelas.php" class="btn">Data Kelas</a>
+            <a href="lihat_data_praktikan.php" class="btn">Data Praktikan</a>
         </div>
 
         <!-- RFID Auto Attendance Section -->
@@ -254,40 +283,22 @@ if (isset($_GET['auto_attendance'])) {
                 Scan kartu RFID untuk otomatis check-in/check-out.
             </div>
         </div>
-
-        <div class="form-container">
-            <form action="tambah_data_pertemuan_asisten.php" method="post">
-                <h3>Asisten</h3>
-                <div class="form-group">
-                    <label for="rfid">Check-In</label>
-                    <input type="number" id="rfid" name="rfid" placeholder="Masukan RFID Asisten">
-                    <button type="submit">Check-In</button>
-                </div>
-                <div class="form-group">
-                    <label for="rfid1">Check-Out</label>
-                    <input type="number" id="rfid1" name="rfid1" placeholder="Masukan RFID Asisten">
-                    <button type="submit">Check-Out</button>
-                </div>
-            </form>
-            <form action="tambah_data_pertemuan_praktikan.php" method="post">
-                <h3>Praktikan</h3>
-                <div class="form-group">
-                    <label for="fingerprint_id">Check-In</label>
-                    <input type="number" id="fingerprint_id" name="fingerprint_id" placeholder="Masukan Fingerprint ID Praktikan">
-                    <button type="submit">Check-in</button>
-                </div>
-                <div class="form-group">
-                    <label for="fingerprint_id1">Check-Out</label>
-                    <input type="number" id="fingerprint_id1" name="fingerprint_id1" placeholder="Masukan Fingerprint ID Praktikan">
-                    <button type="submit">Check-out</button>
-                </div>
-            </form>
+        
+        <!-- Fingerprint Auto Attendance Section -->
+        <div class="fingerprint-section">
+            <h3>Fingerprint Auto Check-in/Check-out</h3>
+            <div class="fingerprint-status scanning" id="fingerprint-status">
+                Menunggu scan jari anda...
+            </div>
+            <div class="fingerprint-result" id="fingerprint-result">
+                Scan jari anda untuk otomatis check-in/check-out.
+            </div>
         </div>
 
         <div class="info-container">
             <div class="info-box" id="info-box-presensi">Tidak ada kelas yang aktif saat ini.</div>
             <div class="info-box" id="info-box-checkout">Tidak ada kelas yang membuka checkout saat ini.</div>
-        </div>
+        </div> 
 
         <div class="btn-container">
             <a href="index.html" class="btn">Kembali ke Login</a>
@@ -318,16 +329,20 @@ if (isset($_GET['auto_attendance'])) {
                     const presensiBox = document.getElementById('info-box-presensi');
                     const checkoutBox = document.getElementById('info-box-checkout');
 
-                    if (data.presensi.length > 0) {
-                        presensiBox.innerHTML = `Checkin telah dibuka untuk kelas:<ul>${data.presensi.map(k => `<li>${k}</li>`).join('')}</ul>`;
-                    } else {
-                        presensiBox.innerHTML = "Tidak ada kelas yang membuka checkin saat ini.";
+                    if (presensiBox) {
+                        if (data.presensi.length > 0) {
+                            presensiBox.innerHTML = `Checkin telah dibuka untuk kelas:<ul>${data.presensi.map(k => `<li>${k}</li>`).join('')}</ul>`;
+                        } else {
+                            presensiBox.innerHTML = "Tidak ada kelas yang membuka checkin saat ini.";
+                        }
                     }
 
-                    if (data.checkout.length > 0) {
-                        checkoutBox.innerHTML = `Checkout telah dibuka untuk kelas:<ul>${data.checkout.map(k => `<li>${k}</li>`).join('')}</ul>`;
-                    } else {
-                        checkoutBox.innerHTML = "Tidak ada kelas yang membuka checkout saat ini.";
+                    if (checkoutBox) {
+                        if (data.checkout.length > 0) {
+                            checkoutBox.innerHTML = `Checkout telah dibuka untuk kelas:<ul>${data.checkout.map(k => `<li>${k}</li>`).join('')}</ul>`;
+                        } else {
+                            checkoutBox.innerHTML = "Tidak ada kelas yang membuka checkout saat ini.";
+                        }
                     }
                 })
                 .catch(error => console.error('Error fetching data:', error));
@@ -395,7 +410,20 @@ if (isset($_GET['auto_attendance'])) {
                 });
         }
 
+        // Fingerprint Auto Check function (placeholder for future implementation)
+        function checkAutoFingerprint() {
+            // Placeholder untuk implementasi fingerprint scanning
+            // Bisa ditambahkan logic serupa dengan RFID nanti
+            const statusElement = document.getElementById('fingerprint-status');
+            const resultElement = document.getElementById('fingerprint-result');
+            
+            // Untuk saat ini, hanya menampilkan status menunggu
+            statusElement.className = 'fingerprint-status scanning';
+            statusElement.innerHTML = 'Menunggu scan jari anda...';
+        }
+
         setInterval(checkAutoAttendance, 2000);
+        setInterval(checkAutoFingerprint, 2000);
         setInterval(checkClasses, 5000);
         checkClasses();
     </script>
