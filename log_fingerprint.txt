@@ -1,5 +1,0 @@
-Menghubungkan ke fingerprint...
-Tersambung!
-Data user berhasil diambil.
-Terjadi error: 2013 (HY000): Lost connection to MySQL server during query
-Koneksi fingerprint ditutup.
