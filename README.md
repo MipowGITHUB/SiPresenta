@@ -1,18 +1,44 @@
-error potential:
-* 1 kelas status checkin dan checkout dibuka bersamaan
-* 1 praktikan/asisten memiliki 2 kelas yang checkinya dibuka bersamaan
-* 1 praktikan/asisten memiliki 2 kelas yang checkoutnys dibuka bersamaan
+🎓 SIPRESENTA - Sistem Presensi Praktikum Terintegrasi
 
+📋 Deskripsi
+SIPRESENTA adalah sistem manajemen presensi praktikum modern yang mengintegrasikan teknologi RFID untuk asisten dan Fingerprint untuk praktikan. Sistem ini dirancang untuk meningkatkan efisiensi, akurasi, dan kemudahan dalam pengelolaan kehadiran di lingkungan kampus Universitas Muhammadiyah Malang di Lab. Informatika
+✨ Fitur Utama
 
-update potential:
-* ui/ux
-* security
-* error handling
-* source code
+🔐 Dual Authentication System
 
+RFID Card untuk Asisten Lab
+Fingerprint Biometric untuk Praktikan
 
-note:
-* checkin dibuka 15mnt sblm waktu mulai dan dittup 15mnt setelahnya, bgtu jg dgn checkout
-* dashboard refresh setiap 1mnt, krn klian serverny ga pk linux jd ubah manual aj di databasenya, kl pk linux pk cron job, bs aj pk windows ada task scheduler 
-* rfid & fid pk id, harusnya di scan,  tp bsa input manual, di masing lab ada alatnya 1(rfid,fid)
-* bisa request dan ngirim data dari infotech (krn klian blm ada akses nntibjelasin aja gmn carany buat api(
+📊 Real-time Dashboard
+
+🎨 Smart Color Coding
+
+Hijau: Minggu Teori
+Kuning: Minggu Demo
+Merah: Minggu UAP (Ujian Akhir Praktikum)
+
+📱 Responsive Design
+
+Mobile-friendly interface
+Cross-platform compatibility
+Multi-device access
+
+🛠️ Tech Stack
+Backend
+
+PHP 8.0+ - Server-side logic
+MySQL 8.0+ - Database management
+
+🛠️ Frontend
+
+PHP Native
+
+Hardware
+
+ESP32 - Microcontroller
+RFID RC522 - Card reader module
+AT - 620 - Fingerprint sensor
+
+Project By 
+Putri Nayla Sabri - 045
+Ahmad Nur Mu'minin - 089
