@@ -12,6 +12,7 @@ $result = $conn->query($sql);
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,11 +23,12 @@ $result = $conn->query($sql);
             margin: 0;
             padding: 0;
         }
-        
-        html, body {
+
+        html,
+        body {
             height: 100%;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #1A3A63 0%, #0C233B 100%);
@@ -37,7 +39,7 @@ $result = $conn->query($sql);
             padding: 50px 20px;
             min-height: 100vh;
         }
-        
+
         .container {
             width: 90%;
             max-width: 1200px;
@@ -46,7 +48,7 @@ $result = $conn->query($sql);
             padding: 25px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
         h1 {
             text-align: center;
             margin-bottom: 25px;
@@ -90,7 +92,7 @@ $result = $conn->query($sql);
             font-size: 0.9em;
             opacity: 0.8;
         }
-        
+
         table {
             width: 100%;
             border-collapse: separate;
@@ -99,27 +101,28 @@ $result = $conn->query($sql);
             border-radius: 8px;
             overflow: hidden;
         }
-        
-        th, td {
+
+        th,
+        td {
             padding: 15px;
             text-align: center;
         }
-        
+
         th {
             background-color: rgba(0, 0, 0, 0.4);
             color: white;
             font-weight: bold;
         }
-        
+
         td {
             background-color: rgba(255, 255, 255, 0.1);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         tr:last-child td {
             border-bottom: none;
         }
-        
+
         tr:hover td {
             background-color: rgba(255, 255, 255, 0.2);
         }
@@ -138,14 +141,14 @@ $result = $conn->query($sql);
             color: rgba(255, 255, 255, 0.6);
             font-style: italic;
         }
-        
+
         .btn-container {
             display: flex;
             justify-content: center;
             gap: 15px;
             margin-top: 25px;
         }
-        
+
         .btn {
             display: inline-block;
             padding: 12px 25px;
@@ -156,7 +159,7 @@ $result = $conn->query($sql);
             font-weight: bold;
             transition: all 0.3s;
         }
-        
+
         .btn:hover {
             background-color: rgba(255, 255, 255, 0.25);
             transform: translateY(-2px);
@@ -169,7 +172,7 @@ $result = $conn->query($sql);
         .btn-primary:hover {
             background-color: #45a049;
         }
-        
+
         @media screen and (max-width: 768px) {
             table {
                 display: block;
@@ -187,13 +190,14 @@ $result = $conn->query($sql);
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Data Kehadiran Asisten</h1>
-        
+
         <?php
         $total_kehadiran = $result->num_rows;
-        
+
         $today = date('Y-m-d');
         $sql_today = "SELECT COUNT(*) as today_count 
                      FROM kehadiran_asisten ka
@@ -201,7 +205,7 @@ $result = $conn->query($sql);
                      WHERE p.tanggal = '$today'";
         $result_today = $conn->query($sql_today);
         $today_count = $result_today->fetch_assoc()['today_count'];
-        
+
         $sql_week = "SELECT COUNT(*) as week_count 
                     FROM kehadiran_asisten ka
                     LEFT JOIN pertemuan p ON ka.id_pertemuan = p.id_pertemuan
@@ -228,7 +232,7 @@ $result = $conn->query($sql);
                 <div class="stat-label">Minggu Ini</div>
             </div>
         </div>
-        
+
         <table>
             <thead>
                 <tr>
@@ -252,20 +256,20 @@ $result = $conn->query($sql);
                                           LEFT JOIN pertemuan p ON ka.id_pertemuan = p.id_pertemuan
                                           LEFT JOIN kelas k ON p.id_kelas = k.id_kelas
                                           ORDER BY ka.waktu_masuk DESC");
-                    
+
                     while ($row = $result->fetch_assoc()) {
                         $tanggal = $row['tanggal'] ? date('d/m/Y', strtotime($row['tanggal'])) : '-';
                         $waktu_masuk = $row['waktu_masuk'] ? date('H:i:s', strtotime($row['waktu_masuk'])) : '-';
-                        $waktu_keluar = $row['waktu_keluar'] ? 
-                                       date('H:i:s', strtotime($row['waktu_keluar'])) : 
-                                       '<span style="color: #FFC107;">Belum Keluar</span>';
-                        
+                        $waktu_keluar = $row['waktu_keluar'] ?
+                            date('H:i:s', strtotime($row['waktu_keluar'])) :
+                            '<span style="color: #FFC107;">Belum Keluar</span>';
+
                         $nama = $row['nama'] ?? 'Unknown';
                         $nim = $row['nim'] ?? '-';
                         $nokartu = $row['nokartu'] ?? '-';
                         $kelas_info = $row['matkul'] && $row['kelas'] ? $row['matkul'] . ' ' . $row['kelas'] : '-';
                         $keterangan = $row['keterangan'] ?? '-';
-                        
+
                         echo "<tr>
                                 <td>{$row['id_kehadiran_asisten']}</td>
                                 <td class='nama-col'>{$nama}</td>
@@ -287,13 +291,14 @@ $result = $conn->query($sql);
                 ?>
             </tbody>
         </table>
-        
+
         <div class="btn-container">
             <a href="lihat_data_asisten.php" class="btn btn-primary">Data Asisten</a>
             <a href="dashboard.php" class="btn">Dashboard</a>
         </div>
     </div>
 </body>
+
 </html>
 
 <?php

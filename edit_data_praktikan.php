@@ -137,6 +137,6 @@
         </div>
         <button type="submit">Update</button>
     </form>
-    <a href="/project_presensi_lab/lihat_data_praktikan.php">Kembali</a>
+    <a href="/siPresenta/sistem_presensi_labit/lihat_data_praktikan.php">Kembali</a>
 </body>
 </html>

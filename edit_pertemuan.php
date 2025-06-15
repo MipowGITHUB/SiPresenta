@@ -1,14 +1,12 @@
 <?php
 include 'connection.php';
 
-// Get pertemuan ID
 $id_pertemuan = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if (!$id_pertemuan) {
     die("ID pertemuan tidak valid!");
 }
 
-// Get pertemuan data
 $sql_pertemuan = "SELECT p.*, k.matkul, k.kelas, k.hari 
                   FROM pertemuan p 
                   JOIN kelas k ON p.id_kelas = k.id_kelas 
@@ -23,7 +21,6 @@ if (!$pertemuan_data) {
     die("Pertemuan tidak ditemukan!");
 }
 
-// Process form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pertemuan_ke = $_POST['pertemuan_ke'];
     $modul = $_POST['modul'];
@@ -31,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tanggal = $_POST['tanggal'];
     $keterangan = $_POST['keterangan'];
     
-    // Update pertemuan
     $sql_update = "UPDATE pertemuan 
                    SET pertemuan_ke = ?, modul = ?, kegiatan = ?, tanggal = ?, keterangan = ?
                    WHERE id_pertemuan = ?";
@@ -41,7 +37,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt_update->execute()) {
         $success_message = "Pertemuan berhasil diupdate!";
         
-        // Refresh data
         $stmt_pertemuan->execute();
         $result_pertemuan = $stmt_pertemuan->get_result();
         $pertemuan_data = $result_pertemuan->fetch_assoc();
@@ -50,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Function to determine pertemuan type
+
 function getPertemuanType($minggu) {
     if ($minggu % 2 == 1 && $minggu < 13) {
         return "Teori";

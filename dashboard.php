@@ -30,24 +30,24 @@ if (isset($_GET['cek_kelas'])) {
 // Handle RFID Auto Attendance - Redirect ke existing flow
 if (isset($_GET['auto_attendance'])) {
     include 'connection.php';
-    
+
     $sql = "SELECT nokartu FROM tmprfid ORDER BY nokartu DESC LIMIT 1";
     $result = $conn->query($sql);
-    
+
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $uid = $row['nokartu'];
-        
+
         $sql = "SELECT id_asisten, nama FROM asisten WHERE nokartu = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('s', $uid);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             $asisten = $result->fetch_assoc();
             $conn->query("DELETE FROM tmprfid WHERE nokartu = '$uid'");
-            
+
             echo json_encode([
                 'status' => 'redirect',
                 'id_asisten' => $asisten['id_asisten'],
@@ -56,21 +56,72 @@ if (isset($_GET['auto_attendance'])) {
             ]);
         } else {
             echo json_encode([
-                'status' => 'error', 
+                'status' => 'error',
                 'message' => 'Kartu belum terdaftar: ' . $uid
             ]);
         }
     } else {
         echo json_encode(['status' => 'no_card']);
     }
-    
+
     $conn->close();
     exit;
 }
+
+// Handle Fingerprint Auto Attendance - Direct from rekap_praktikan
+if (isset($_GET['auto_fingerprint'])) {
+    include 'connection.php';
+
+    // 1. Ambil data fingerprint terakhir (ambil id_praktikan terakhir)
+    $sqlGetLastFingerprint = "SELECT id_praktikan, GREATEST(COALESCE(waktu_checkin, '1970-01-01'), COALESCE(waktu_checkout, '1970-01-01')) AS waktu_terakhir
+FROM rekap_praktikan
+ORDER BY waktu_terakhir DESC
+LIMIT 1
+";
+    $result = $conn->query($sqlGetLastFingerprint);
+
+    if ($result && $result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $id_praktikan = $row['id_praktikan'];
+
+        // 2. Query data praktikan dan kelas berdasarkan id_praktikan
+        $sql = "SELECT p.nama, p.nim, k.kelas, k.matkul
+                FROM praktikan p
+                JOIN kelas_praktikan kp ON p.id_praktikan = kp.id_praktikan
+                JOIN kelas k ON kp.id_kelas = k.id_kelas
+                WHERE p.id_praktikan = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $id_praktikan);
+        $stmt->execute();
+        $result2 = $stmt->get_result();
+
+        if ($result2 && $result2->num_rows > 0) {
+            $data = $result2->fetch_assoc();
+            echo json_encode([
+                'status' => 'success',
+                'nama' => $data['nama'],
+                'nim' => $data['nim'],
+                'matkul' => $data['matkul'],
+                'kelas' => $data['kelas']
+            ]);
+        } else {
+            echo json_encode(['status' => 'no_data']);
+        }
+
+    } else {
+        echo json_encode(['status' => 'no_fingerprint']);
+    }
+
+    $conn->close();
+    exit;
+}
+
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,6 +139,7 @@ if (isset($_GET['auto_attendance'])) {
             background: linear-gradient(135deg, #1A3A63 0%, #0C233B 100%);
             color: white;
         }
+
         .container {
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
@@ -96,6 +148,7 @@ if (isset($_GET['auto_attendance'])) {
             width: 90%;
             max-width: 800px;
         }
+
         .btn {
             display: inline-block;
             padding: 10px 20px;
@@ -108,16 +161,19 @@ if (isset($_GET['auto_attendance'])) {
             text-align: center;
             transition: all 0.3s ease;
         }
+
         .btn:hover {
             background-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
+
         .btn-container {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 20px;
         }
+
         #clock {
             font-size: 24px;
             font-weight: bold;
@@ -127,6 +183,7 @@ if (isset($_GET['auto_attendance'])) {
             padding: 10px 20px;
             border-radius: 8px;
         }
+
         .info-box {
             margin-top: 20px;
             width: 100%;
@@ -137,12 +194,14 @@ if (isset($_GET['auto_attendance'])) {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: left;
         }
+
         .info-container {
             display: flex;
             flex-direction: column;
             gap: 20px;
             width: 100%;
         }
+
         form {
             background-color: rgba(255, 255, 255, 0.1);
             padding: 20px;
@@ -150,6 +209,7 @@ if (isset($_GET['auto_attendance'])) {
             margin: 15px 0;
             width: 100%;
         }
+
         input {
             padding: 10px;
             border-radius: 4px;
@@ -158,6 +218,7 @@ if (isset($_GET['auto_attendance'])) {
             margin: 5px 0;
             width: 200px;
         }
+
         button {
             padding: 10px 15px;
             background-color: #3498db;
@@ -167,17 +228,21 @@ if (isset($_GET['auto_attendance'])) {
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
         button:hover {
             background-color: #2980b9;
         }
+
         h1 {
             color: #f5f5f5;
             text-align: center;
             margin-bottom: 20px;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-container {
             display: flex;
             gap: 20px;
@@ -185,12 +250,13 @@ if (isset($_GET['auto_attendance'])) {
             justify-content: center;
             width: 100%;
         }
+
         label {
             display: block;
             margin-bottom: 5px;
             color: #f5f5f5;
         }
-        
+
         /* RFID Section Styling */
         .rfid-section {
             background-color: rgba(76, 175, 80, 0.1);
@@ -200,7 +266,7 @@ if (isset($_GET['auto_attendance'])) {
             margin: 20px 0;
             text-align: center;
         }
-        
+
         /* Fingerprint Section Styling - Konsisten dengan RFID */
         .fingerprint-section {
             background-color: rgba(33, 150, 243, 0.1);
@@ -210,14 +276,16 @@ if (isset($_GET['auto_attendance'])) {
             margin: 20px 0;
             text-align: center;
         }
-        
-        .rfid-status, .fingerprint-status {
+
+        .rfid-status,
+        .fingerprint-status {
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 10px;
         }
-        
-        .rfid-result, .fingerprint-result {
+
+        .rfid-result,
+        .fingerprint-result {
             background-color: rgba(0, 0, 0, 0.2);
             padding: 15px;
             border-radius: 8px;
@@ -225,17 +293,19 @@ if (isset($_GET['auto_attendance'])) {
             min-height: 60px;
             text-align: left;
         }
-        
+
         .scanning {
             color: #FFC107;
         }
+
         .success {
             color: #4CAF50;
         }
+
         .error {
             color: #F44336;
         }
-        
+
         /* Section Headers */
         .rfid-section h3 {
             margin-top: 0;
@@ -243,24 +313,26 @@ if (isset($_GET['auto_attendance'])) {
             color: #4CAF50;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .fingerprint-section h3 {
             margin-top: 0;
             margin-bottom: 15px;
             color: #2196F3;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         @media (min-width: 768px) {
             .info-container {
                 flex-direction: row;
             }
+
             .form-container form {
                 flex: 1;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Dashboard</h1>
@@ -283,7 +355,7 @@ if (isset($_GET['auto_attendance'])) {
                 Scan kartu RFID untuk otomatis check-in/check-out.
             </div>
         </div>
-        
+
         <!-- Fingerprint Auto Attendance Section -->
         <div class="fingerprint-section">
             <h3>Fingerprint Auto Check-in/Check-out</h3>
@@ -298,7 +370,7 @@ if (isset($_GET['auto_attendance'])) {
         <div class="info-container">
             <div class="info-box" id="info-box-presensi">Tidak ada kelas yang aktif saat ini.</div>
             <div class="info-box" id="info-box-checkout">Tidak ada kelas yang membuka checkout saat ini.</div>
-        </div> 
+        </div>
 
         <div class="btn-container">
             <a href="index.html" class="btn">Kembali ke Login</a>
@@ -354,49 +426,49 @@ if (isset($_GET['auto_attendance'])) {
                 .then(data => {
                     const statusElement = document.getElementById('rfid-status');
                     const resultElement = document.getElementById('rfid-result');
-                    
+
                     if (data.status === 'redirect') {
                         statusElement.className = 'rfid-status success';
                         statusElement.innerHTML = `Kartu terdeteksi: ${data.uid}`;
-                        
+
                         resultElement.innerHTML = `
                             <strong>AUTO SUBMIT</strong><br>
                             Asisten: ${data.nama}<br>
                             ID: ${data.id_asisten}<br>
                             <small>Submitting to existing system...</small>
                         `;
-                        
+
                         setTimeout(() => {
                             const form = document.createElement('form');
                             form.method = 'POST';
                             form.action = 'tambah_data_pertemuan_asisten.php';
                             form.style.display = 'none';
-                            
+
                             const input = document.createElement('input');
                             input.type = 'hidden';
                             input.name = 'rfid';
                             input.value = data.id_asisten;
-                            
+
                             form.appendChild(input);
                             document.body.appendChild(form);
                             form.submit();
                         }, 1500);
-                        
+
                     } else if (data.status === 'error') {
                         statusElement.className = 'rfid-status error';
                         statusElement.innerHTML = `Error: ${data.message}`;
-                        
+
                         resultElement.innerHTML = `
                             <strong>Error:</strong> ${data.message}<br>
                             <small>Periksa registrasi kartu di menu "Lihat Data Asisten"</small>
                         `;
-                        
+
                         setTimeout(() => {
                             statusElement.className = 'rfid-status scanning';
                             statusElement.innerHTML = 'Menunggu scan kartu RFID...';
                             resultElement.innerHTML = 'Scan kartu RFID untuk otomatis check-in/check-out.';
                         }, 5000);
-                        
+
                     } else {
                         statusElement.className = 'rfid-status scanning';
                         statusElement.innerHTML = 'Menunggu scan kartu RFID...';
@@ -405,27 +477,51 @@ if (isset($_GET['auto_attendance'])) {
                 .catch(error => {
                     console.error('Error in auto attendance:', error);
                     const statusElement = document.getElementById('rfid-status');
-                    statusElement.className = 'rfid-status error';
-                    statusElement.innerHTML = 'Error koneksi';
+                    statusElement.className = 'rfid-status scanning';
+                    statusElement.innerHTML = 'Menunggu scan kartu RFID...';
                 });
         }
 
         // Fingerprint Auto Check function (placeholder for future implementation)
-        function checkAutoFingerprint() {
-            // Placeholder untuk implementasi fingerprint scanning
-            // Bisa ditambahkan logic serupa dengan RFID nanti
-            const statusElement = document.getElementById('fingerprint-status');
-            const resultElement = document.getElementById('fingerprint-result');
-            
-            // Untuk saat ini, hanya menampilkan status menunggu
-            statusElement.className = 'fingerprint-status scanning';
-            statusElement.innerHTML = 'Menunggu scan jari anda...';
+
+        function checkFingerprint() {
+            fetch(window.location.href + '?auto_fingerprint=true')
+                .then(res => res.json())
+                .then(data => {
+                    const statusElem = document.getElementById('fingerprint-status');
+                    const resultElem = document.getElementById('fingerprint-result');
+                    if (!statusElem || !resultElem) return;
+
+                    if (data.status === 'success') {
+                        statusElem.className = 'fingerprint-status success';
+                        statusElem.textContent = 'Fingerprint terdeteksi.';
+                        resultElem.innerHTML = `Nama: ${data.nama}<br>NIM: ${data.nim}<br>Matkul: ${data.matkul}<br>Kelas: ${data.kelas}`;
+                    } else {
+                        statusElem.className = 'fingerprint-status error';
+                        statusElem.textContent = 'Terjadi kesalahan: ' + (data.message || 'Data tidak ditemukan');
+                        resultElem.textContent = '';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    const statusElem = document.getElementById('fingerprint-status');
+                    if (statusElem) {
+                        statusElem.className = 'fingerprint-status error';
+                        statusElem.textContent = 'Gagal mengambil data fingerprint.';
+                    }
+                });
         }
 
+        document.addEventListener('DOMContentLoaded', function() {
+            checkFingerprint(); // Panggil setelah halaman siap
+        });
+
+
         setInterval(checkAutoAttendance, 2000);
-        setInterval(checkAutoFingerprint, 2000);
+        setInterval(checkFingerprint, 2000);
         setInterval(checkClasses, 5000);
         checkClasses();
     </script>
 </body>
+
 </html>

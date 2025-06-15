@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Kelas</title>
+    <title>Lihat Data Kelas</title>
     <style>
         * {
             box-sizing: border-box;
@@ -234,7 +234,6 @@
         <table>
             <thead>
                 <tr>
-                    <th>Id</th>
                     <th>Matkul</th>
                     <th>Kelas</th>
                     <th>Lab</th>
@@ -249,7 +248,6 @@
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>
-                                <td>{$row['id_kelas']}</td>
                                 <td>{$row['matkul']}</td>
                                 <td>{$row['kelas']}</td>
                                 <td>{$row['lab']}</td>

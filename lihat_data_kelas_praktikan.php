@@ -1,31 +1,27 @@
 <?php
-    include 'connection.php'; // Koneksi ke database
+    include 'connection.php';
 
-    // Cek apakah ada parameter ID di URL
     if (isset($_GET['id'])) {
         $id_praktikan = $_GET['id'];
     } else {
         die("ID tidak ditemukan!");
     }
 
-    // Query untuk mengambil nama praktikan
     $sql_praktikan = "SELECT nama FROM praktikan WHERE id_praktikan = ?";
     $stmt_praktikan = $conn->prepare($sql_praktikan);
     $stmt_praktikan->bind_param("i", $id_praktikan);
     $stmt_praktikan->execute();
     $result_praktikan = $stmt_praktikan->get_result();
-    $stmt_praktikan->close(); // Tutup statement
+    $stmt_praktikan->close();
 
-    $nama_praktikan = "Tidak Diketahui"; // Default jika tidak ditemukan
+    $nama_praktikan = "Tidak Diketahui";
     if ($row_praktikan = $result_praktikan->fetch_assoc()) {
         $nama_praktikan = $row_praktikan['nama'];
     }
 
-    // Query untuk mengambil semua kelas yang tersedia
     $sql_kelas = "SELECT id_kelas, matkul, kelas FROM kelas";
     $result_kelas = $conn->query($sql_kelas);
 
-    // Query untuk mengambil data kelas yang diikuti oleh praktikan tertentu
     $sql = "SELECT kelas_praktikan.*, kelas.*
             FROM kelas_praktikan
             JOIN kelas ON kelas_praktikan.id_kelas = kelas.id_kelas
@@ -35,7 +31,7 @@
     $stmt->bind_param("i", $id_praktikan);
     $stmt->execute();
     $result = $stmt->get_result();
-    $stmt->close(); // Tutup statement
+    $stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -203,7 +199,6 @@
 
         <table>
             <tr>
-                <th>ID</th>
                 <th>Mata Kuliah</th>
                 <th>Kelas</th>
                 <th>Lab</th>
@@ -216,7 +211,6 @@
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
-                            <td>".htmlspecialchars($row['id_kelas_praktikan'])."</td>
                             <td>".htmlspecialchars($row['matkul'])."</td>
                             <td>".htmlspecialchars($row['kelas'])."</td>
                             <td>".htmlspecialchars($row['lab'])."</td>

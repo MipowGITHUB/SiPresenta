@@ -24,14 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$id_praktikan && !$id_praktikan1) {
         echo "<script>alert('fingerprint_id tidsfdak ditemukan.'); window.location.href='dashboard.php';</script>";
         exit;
-    } 
+    }
 
     // Cek apakah praktikan terdaftar di kelas yang aktif dan sesuai dengan hari ini
     $sql = "SELECT kp.id_kelas 
             FROM kelas_praktikan kp
             JOIN kelas k ON kp.id_kelas = k.id_kelas
             WHERE kp.id_praktikan = ? AND k.status_presensi = 1 AND k.hari = ?";
-            
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('is', $id_praktikan, $current_day);
     $stmt->execute();
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             FROM kelas_praktikan kp
             JOIN kelas k ON kp.id_kelas = k.id_kelas
             WHERE kp.id_praktikan = ? AND k.status_checkout = 1 AND k.hari = ?";
-            
+
     $stmt1 = $conn->prepare($sql1);
     $stmt1->bind_param('is', $id_praktikan1, $current_day);
     $stmt1->execute();
@@ -94,18 +94,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else if ($result1->num_rows > 0) { //checkout
         $row1 = $result1->fetch_assoc();
         $id_kelas1 = $row1['id_kelas'];
-    
+
         // Cek apakah sudah ada pertemuan hari ini untuk kelas tersebut
         $sql1 = "SELECT id_pertemuan FROM pertemuan WHERE id_kelas = ? AND tanggal = ? LIMIT 1";
         $stmt1 = $conn->prepare($sql1);
         $stmt1->bind_param('is', $id_kelas1, $current_date);
         $stmt1->execute();
         $result1 = $stmt1->get_result();
-    
+
         if ($result1->num_rows > 0) { //ada pertemuan
             $row1 = $result1->fetch_assoc();
             $id_pertemuan = $row1['id_pertemuan'];
-    
+
             // Cek apakah praktikan sudah pernah melakukan checkout di pertemuan ini
             $sql1 = "   SELECT kp.* 
                         FROM kehadiran_praktikan kp
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt1->bind_param('ii', $id_praktikan1, $id_pertemuan);
             $stmt1->execute();
             $result1 = $stmt1->get_result();
-    
+
             if ($result1->num_rows > 0) {
                 echo "<script>alert('Anda belum melakukan Check-In untuk kelas ini hari ini.'); window.location.href='dashboard.php';</script>";
             } else {
@@ -125,14 +125,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt1 = $conn->prepare($sql1);
                 $stmt1->bind_param('sii', $current_time, $id_praktikan1, $id_pertemuan);
                 $stmt1->execute();
-    
+
                 echo "<script>alert('Checkout berhasil.'); window.location.href='dashboard.php';</script>";
             }
         } else {
             echo "<script>alert('Tidak ada pertemuan ditemukan untuk hari ini.'); window.location.href='dashboard.php';</script>";
         }
-    }
-     else {
+    } else {
         echo "<p>Query gagal! Tidak ada kelas aktif untuk praktikan dengan ID: $id_praktikan1 pada hari: $current_day</p>";
         echo "<p>SQL Query: $sql1</p>";
         echo "<p>praktikan ID: $id_praktikan1</p>";
@@ -146,4 +145,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $conn->close();
-?>

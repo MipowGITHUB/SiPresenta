@@ -2,14 +2,15 @@
 include 'connection.php';
 
 // Helper function untuk status kehadiran
-function getAttendanceStatus($keterangan, $waktu_masuk, $waktu_keluar, $tanggal) {
+function getAttendanceStatus($keterangan, $waktu_masuk, $waktu_keluar, $tanggal)
+{
     $current_date = date('Y-m-d');
     $record_date = date('Y-m-d', strtotime($tanggal));
-    
+
     if (empty($waktu_masuk)) {
         return 'Tidak Hadir';
     }
-    
+
     if (!empty($waktu_masuk) && empty($waktu_keluar)) {
         if ($record_date == $current_date) {
             return 'Masuk';
@@ -17,11 +18,11 @@ function getAttendanceStatus($keterangan, $waktu_masuk, $waktu_keluar, $tanggal)
             return 'Tidak Lengkap';
         }
     }
-    
+
     if (!empty($waktu_masuk) && !empty($waktu_keluar)) {
         return 'Hadir';
     }
-    
+
     return 'Tidak Hadir';
 }
 
@@ -83,6 +84,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,7 +99,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
             color: #fff;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -107,19 +109,19 @@ while ($row = $result_praktikan->fetch_assoc()) {
             padding: 30px;
             backdrop-filter: blur(4px);
         }
-        
+
         .header {
             text-align: center;
             margin-bottom: 30px;
         }
-        
+
         .header h1 {
             margin: 0 0 10px 0;
             font-size: 28px;
             font-weight: 600;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        
+
         .pertemuan-info {
             background: linear-gradient(45deg, #3498db, #2ecc71);
             border-radius: 10px;
@@ -127,53 +129,92 @@ while ($row = $result_praktikan->fetch_assoc()) {
             margin: 20px 0;
             text-align: center;
         }
-        
+
         .pertemuan-title {
             font-size: 24px;
             font-weight: 700;
             margin: 0 0 10px 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .pertemuan-details {
             font-size: 16px;
             opacity: 0.9;
         }
-        
-        .stats-container {
+
+        .asisten-stats-container,
+        .praktikan-stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            box-sizing: border-box;
         }
-        
+
+        .praktikan-stats-container {
+            margin-top: 20px;
+            /* Space between asisten and praktikan rows */
+        }
+
         .stats-card {
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 10px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.3s ease;
         }
-        
+
+        .stats-card:hover {
+            transform: scale(1.05);
+        }
+
         .stats-number {
             font-size: 2.2em;
             font-weight: bold;
             color: #4CAF50;
             margin-bottom: 5px;
         }
-        
+
         .stats-label {
             font-size: 14px;
             opacity: 0.9;
         }
-        
+
+        @media (max-width: 768px) {
+
+            .asisten-stats-container,
+            .praktikan-stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .stats-card {
+                padding: 15px;
+                min-height: 80px;
+            }
+
+            .stats-number {
+                font-size: 1.8em;
+            }
+
+            .stats-label {
+                font-size: 12px;
+            }
+        }
+
         .tab-container {
             display: flex;
             justify-content: center;
             margin: 20px 0;
             gap: 10px;
         }
-        
+
         .tab-btn {
             padding: 12px 24px;
             background-color: rgba(255, 255, 255, 0.1);
@@ -185,26 +226,26 @@ while ($row = $result_praktikan->fetch_assoc()) {
             transition: all 0.3s;
             font-size: 16px;
         }
-        
+
         .tab-btn:hover {
             background-color: rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.4);
         }
-        
+
         .tab-btn.active {
             background-color: #3498db;
             border-color: #2980b9;
             box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
         }
-        
+
         .content-section {
             display: none;
         }
-        
+
         .content-section.active {
             display: block;
         }
-        
+
         .section-header {
             background: linear-gradient(45deg, #3498db, #2ecc71);
             border-radius: 10px;
@@ -212,20 +253,20 @@ while ($row = $result_praktikan->fetch_assoc()) {
             margin: 20px 0;
             text-align: center;
         }
-        
+
         .section-title {
             font-size: 24px;
             font-weight: 700;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .section-subtitle {
             font-size: 14px;
             margin: 5px 0 0 0;
             opacity: 0.9;
         }
-        
+
         .attendance-table {
             width: 100%;
             border-collapse: collapse;
@@ -234,14 +275,14 @@ while ($row = $result_praktikan->fetch_assoc()) {
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
-        
+
         .attendance-table th,
         .attendance-table td {
             padding: 12px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .attendance-table th {
             background-color: rgba(0, 0, 0, 0.3);
             color: #fff;
@@ -249,19 +290,19 @@ while ($row = $result_praktikan->fetch_assoc()) {
             text-transform: uppercase;
             font-size: 12px;
         }
-        
+
         .attendance-table tbody tr {
             background-color: rgba(255, 255, 255, 0.05);
         }
-        
+
         .attendance-table tbody tr:nth-child(even) {
             background-color: rgba(255, 255, 255, 0.1);
         }
-        
+
         .attendance-table tbody tr:hover {
             background-color: rgba(255, 255, 255, 0.15);
         }
-        
+
         .status-hadir {
             background-color: #4CAF50;
             color: white;
@@ -270,7 +311,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
             font-size: 12px;
             font-weight: bold;
         }
-        
+
         .status-masuk {
             background-color: #FF9800;
             color: white;
@@ -279,7 +320,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
             font-size: 12px;
             font-weight: bold;
         }
-        
+
         .status-tidak-hadir {
             background-color: #f44336;
             color: white;
@@ -288,7 +329,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
             font-size: 12px;
             font-weight: bold;
         }
-        
+
         .status-tidak-lengkap {
             background-color: #9C27B0;
             color: white;
@@ -297,14 +338,14 @@ while ($row = $result_praktikan->fetch_assoc()) {
             font-size: 12px;
             font-weight: bold;
         }
-        
+
         .btn-container {
             display: flex;
             gap: 15px;
             justify-content: center;
             margin-top: 20px;
         }
-        
+
         .btn {
             display: inline-block;
             padding: 12px 24px;
@@ -318,20 +359,20 @@ while ($row = $result_praktikan->fetch_assoc()) {
             transition: all 0.3s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn:hover {
             background-color: #2980b9;
             transform: translateY(-2px);
         }
-        
+
         .btn.kembali {
             background-color: #7f8c8d;
         }
-        
+
         .btn.kembali:hover {
             background-color: #6c7a7d;
         }
-        
+
         .no-data {
             text-align: center;
             padding: 40px;
@@ -341,6 +382,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -349,12 +391,12 @@ while ($row = $result_praktikan->fetch_assoc()) {
 
         <div class="pertemuan-info">
             <div class="pertemuan-title">
-                Pertemuan <?php echo htmlspecialchars($pertemuan_data['pertemuan_ke']); ?> - 
+                Pertemuan <?php echo htmlspecialchars($pertemuan_data['pertemuan_ke']); ?> -
                 <?php echo htmlspecialchars($pertemuan_data['modul']); ?>
             </div>
             <div class="pertemuan-details">
-                <?php echo htmlspecialchars($pertemuan_data['matkul'] . ' ' . $pertemuan_data['kelas']); ?> | 
-                <?php echo date('d F Y', strtotime($pertemuan_data['tanggal'])); ?> | 
+                <?php echo htmlspecialchars($pertemuan_data['matkul'] . ' ' . $pertemuan_data['kelas']); ?> |
+                <?php echo date('d F Y', strtotime($pertemuan_data['tanggal'])); ?> |
                 <?php echo htmlspecialchars($pertemuan_data['hari']); ?><br>
                 <strong>Kegiatan:</strong> <?php echo htmlspecialchars($pertemuan_data['kegiatan']); ?>
             </div>
@@ -362,7 +404,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
 
         <?php
         // Hitung statistik kehadiran untuk pertemuan ini
-        
+
         // Asisten stats
         $sql_asisten_hadir = "SELECT COUNT(*) as hadir FROM kehadiran_asisten 
                              WHERE id_pertemuan = ? AND waktu_masuk IS NOT NULL AND waktu_keluar IS NOT NULL";
@@ -370,20 +412,32 @@ while ($row = $result_praktikan->fetch_assoc()) {
         $stmt_asisten_hadir->bind_param("i", $id_pertemuan);
         $stmt_asisten_hadir->execute();
         $asisten_hadir = $stmt_asisten_hadir->get_result()->fetch_assoc()['hadir'];
-        
+
         $sql_asisten_masuk = "SELECT COUNT(*) as masuk FROM kehadiran_asisten 
                              WHERE id_pertemuan = ? AND waktu_masuk IS NOT NULL AND waktu_keluar IS NULL";
         $stmt_asisten_masuk = $conn->prepare($sql_asisten_masuk);
         $stmt_asisten_masuk->bind_param("i", $id_pertemuan);
         $stmt_asisten_masuk->execute();
         $asisten_masuk = $stmt_asisten_masuk->get_result()->fetch_assoc()['masuk'];
-        
-        // Praktikan stats (placeholder - akan diisi ketika implementasi fingerprint)
-        $praktikan_hadir = 0;
-        $praktikan_masuk = 0;
+
+        // Praktikan stats
+        $sql_praktikan_hadir = "SELECT COUNT(*) as hadir FROM rekap_praktikan 
+                        WHERE id_pertemuan = ? AND waktu_checkin IS NOT NULL AND waktu_checkout IS NOT NULL";
+        $stmt_praktikan_hadir = $conn->prepare($sql_praktikan_hadir);
+        $stmt_praktikan_hadir->bind_param("i", $id_pertemuan);
+        $stmt_praktikan_hadir->execute();
+        $praktikan_hadir = $stmt_praktikan_hadir->get_result()->fetch_assoc()['hadir'];
+
+        $sql_praktikan_masuk = "SELECT COUNT(*) as masuk FROM rekap_praktikan 
+                        WHERE id_pertemuan = ? AND waktu_checkin IS NOT NULL AND waktu_checkout IS NULL";
+        $stmt_praktikan_masuk = $conn->prepare($sql_praktikan_masuk);
+        $stmt_praktikan_masuk->bind_param("i", $id_pertemuan);
+        $stmt_praktikan_masuk->execute();
+        $praktikan_masuk = $stmt_praktikan_masuk->get_result()->fetch_assoc()['masuk'];
+
         ?>
 
-        <div class="stats-container">
+        <div class="asisten-stats-container">
             <div class="stats-card">
                 <div class="stats-number"><?php echo count($asisten_list); ?></div>
                 <div class="stats-label">Total Asisten</div>
@@ -396,9 +450,19 @@ while ($row = $result_praktikan->fetch_assoc()) {
                 <div class="stats-number" style="color: #FF9800;"><?php echo $asisten_masuk; ?></div>
                 <div class="stats-label">Asisten Masuk</div>
             </div>
+        </div>
+        <div class="praktikan-stats-container">
             <div class="stats-card">
-                <div class="stats-number"><?php echo count($praktikan_list); ?></div>
+                <div class="stats-number"><?php echo is_array($praktikan_list) ? count($praktikan_list) : 0; ?></div>
                 <div class="stats-label">Total Praktikan</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-number"><?php echo $praktikan_hadir; ?></div>
+                <div class="stats-label">Praktikan Hadir</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-number" style="color: #FF9800;"><?php echo $praktikan_masuk; ?></div>
+                <div class="stats-label">Praktikan Masuk</div>
             </div>
         </div>
 
@@ -441,16 +505,16 @@ while ($row = $result_praktikan->fetch_assoc()) {
                         $stmt_kehadiran->bind_param("ii", $asisten['id_asisten'], $id_pertemuan);
                         $stmt_kehadiran->execute();
                         $result_kehadiran = $stmt_kehadiran->get_result();
-                        
+
                         if ($result_kehadiran->num_rows > 0) {
                             $kehadiran = $result_kehadiran->fetch_assoc();
                             $status = getAttendanceStatus(
-                                $kehadiran['keterangan'], 
-                                $kehadiran['waktu_masuk'], 
-                                $kehadiran['waktu_keluar'], 
+                                $kehadiran['keterangan'],
+                                $kehadiran['waktu_masuk'],
+                                $kehadiran['waktu_keluar'],
                                 $pertemuan_data['tanggal']
                             );
-                            
+
                             $waktu_masuk = $kehadiran['waktu_masuk'] ? date('H:i', strtotime($kehadiran['waktu_masuk'])) : '-';
                             $waktu_keluar = $kehadiran['waktu_keluar'] ? date('H:i', strtotime($kehadiran['waktu_keluar'])) : '-';
                         } else {
@@ -458,16 +522,23 @@ while ($row = $result_praktikan->fetch_assoc()) {
                             $waktu_masuk = '-';
                             $waktu_keluar = '-';
                         }
-                        
+
                         // CSS class untuk status
                         $status_class = '';
-                        switch($status) {
-                            case 'Hadir': $status_class = 'status-hadir'; break;
-                            case 'Masuk': $status_class = 'status-masuk'; break;
-                            case 'Tidak Lengkap': $status_class = 'status-tidak-lengkap'; break;
-                            default: $status_class = 'status-tidak-hadir';
+                        switch ($status) {
+                            case 'Hadir':
+                                $status_class = 'status-hadir';
+                                break;
+                            case 'Masuk':
+                                $status_class = 'status-masuk';
+                                break;
+                            case 'Tidak Lengkap':
+                                $status_class = 'status-tidak-lengkap';
+                                break;
+                            default:
+                                $status_class = 'status-tidak-hadir';
                         }
-                        
+
                         echo "<tr>";
                         echo "<td>{$no}</td>";
                         echo "<td>" . htmlspecialchars($asisten['nama']) . "</td>";
@@ -476,7 +547,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
                         echo "<td>{$waktu_keluar}</td>";
                         echo "<td><span class='{$status_class}'>{$status}</span></td>";
                         echo "</tr>";
-                        
+
                         $no++;
                     }
                     ?>
@@ -491,28 +562,75 @@ while ($row = $result_praktikan->fetch_assoc()) {
                 <div class="section-subtitle">Sistem presensi berbasis scan sidik jari</div>
             </div>
 
-            <div class="no-data">
-                <h3 style="color: #FF9800; margin-bottom: 15px;">Under Development</h3>
-                <p>Fitur kehadiran praktikan dengan fingerprint sedang dalam pengembangan.</p>
-                <p>Akan terintegrasi dengan sistem RFID asisten untuk memberikan</p>
-                <p>laporan kehadiran yang comprehensive untuk pertemuan ini.</p>
-                
-                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 152, 0, 0.1); border-radius: 8px; border: 1px solid rgba(255, 152, 0, 0.3);">
-                    <strong>Struktur Data Praktikan Ready:</strong><br>
-                    • Total praktikan terdaftar: <?php echo count($praktikan_list); ?> orang<br>
-                    • Database schema sudah prepared<br>
-                    • Tab system sudah configured<br>
-                    • Tinggal implementasi fingerprint hardware<br><br>
-                    
-                    <strong>Daftar Praktikan Terdaftar:</strong><br>
-                    <?php foreach (array_slice($praktikan_list, 0, 5) as $p): ?>
-                        • <?php echo htmlspecialchars($p['nama']); ?> (<?php echo htmlspecialchars($p['nim']); ?>)<br>
-                    <?php endforeach; ?>
-                    <?php if (count($praktikan_list) > 5): ?>
-                        ... dan <?php echo count($praktikan_list) - 5; ?> praktikan lainnya
-                    <?php endif; ?>
-                </div>
-            </div>
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Praktikan</th>
+                        <th>NIM</th>
+                        <th>Waktu Masuk</th>
+                        <th>Waktu Keluar</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $no = 1;
+                    foreach ($praktikan_list as $praktikan) {
+                        // Query presensi fingerprint untuk praktikan ini pada pertemuan ini
+                        $sql_kehadiran = "SELECT * FROM rekap_praktikan 
+                          WHERE id_praktikan = ? AND id_pertemuan = ?";
+                        $stmt = $conn->prepare($sql_kehadiran);
+                        $stmt->bind_param("ii", $praktikan['id_praktikan'], $id_pertemuan);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        if ($result->num_rows > 0) {
+                            $kehadiran = $result->fetch_assoc();
+                            $waktu_masuk = $kehadiran['waktu_checkin'] ? date('H:i', strtotime($kehadiran['waktu_checkin'])) : '-';
+                            $waktu_keluar = $kehadiran['waktu_checkout'] ? date('H:i', strtotime($kehadiran['waktu_checkout'])) : '-';
+                            $status = getAttendanceStatus(
+                                $kehadiran['keterangan'],
+                                $kehadiran['waktu_checkin'],
+                                $kehadiran['waktu_checkout'],
+                                $pertemuan_data['tanggal']
+                            );
+                        } else {
+                            $waktu_masuk = '-';
+                            $waktu_keluar = '-';
+                            $status = 'Tidak Hadir';
+                        }
+
+                        // Status class
+                        $status_class = '';
+                        switch ($status) {
+                            case 'Hadir':
+                                $status_class = 'status-hadir';
+                                break;
+                            case 'Masuk':
+                                $status_class = 'status-masuk';
+                                break;
+                            case 'Tidak Lengkap':
+                                $status_class = 'status-tidak-lengkap';
+                                break;
+                            default:
+                                $status_class = 'status-tidak-hadir';
+                        }
+
+                        echo "<tr>";
+                        echo "<td>{$no}</td>";
+                        echo "<td>" . htmlspecialchars($praktikan['nama']) . "</td>";
+                        echo "<td>" . htmlspecialchars($praktikan['nim']) . "</td>";
+                        echo "<td>{$waktu_masuk}</td>";
+                        echo "<td>{$waktu_keluar}</td>";
+                        echo "<td><span class='{$status_class}'>{$status}</span></td>";
+                        echo "</tr>";
+
+                        $no++;
+                    }
+                    ?>
+                </tbody>
+            </table>
         </div>
 
         <div class="btn-container">
@@ -527,19 +645,19 @@ while ($row = $result_praktikan->fetch_assoc()) {
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
-            
+
             // Remove active class from all tab buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             // Show selected content section
             document.getElementById(tabName + '-content').classList.add('active');
-            
+
             // Add active class to clicked tab button
             event.target.classList.add('active');
         }
-        
+
         // Optional: Add smooth transition effect
         document.addEventListener('DOMContentLoaded', function() {
             const sections = document.querySelectorAll('.content-section');
@@ -549,6 +667,7 @@ while ($row = $result_praktikan->fetch_assoc()) {
         });
     </script>
 </body>
+
 </html>
 
 <?php

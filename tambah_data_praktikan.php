@@ -4,12 +4,12 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $nama = $_POST['nama'];
         $nim = $_POST['nim'];
+        $uid = $_POST['uid'];
 
-        // Query insert data
-        $sql = "INSERT INTO praktikan (nama, nim) VALUES ('$nama', '$nim')";
+        $sql = "INSERT INTO praktikan (nama, nim, uid) VALUES ('$nama', '$nim', '$uid')";
 
         if ($conn->query($sql) === TRUE) {
-            header("Location: lihat_data_praktikan.php"); // Redirect ke halaman utama
+            header("Location: lihat_data_praktikan.php");
             exit();
         } else {
             echo "Error: " . $sql . "<br>" . $conn->error;
